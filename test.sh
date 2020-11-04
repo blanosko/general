@@ -10,13 +10,14 @@
 #Globalne premenne
 DISK_THRESHOLD=75 # Hranica od ktorej bude vypisovat vytazenie disku
 LINE_COUNT=$(grep "" -c $2)
+VAL_ALG="NF == 8 && $1 ~ /mysql/ && $3 ~ /dbs/ && ($3 ~ /sd/ || $3 ~ /xvd/) && $4 ~ /G/ && $5 ~ /G/ && $6 ~ /G/ && $7 ~ /%/"
 
 ############################################################################################################
 #Funkcie
 ValidateFile () {
     echo "#################################################" 
         awk '{ 
-        if(NF == 8   &&   $1 ~ /mysql/   &&   $3 ~ /dbs/   &&   ($3 ~ /sd/ || $3 ~ /xvd/)   &&   $4 ~ /G/   &&   $5 ~ /G/   &&   $6 ~ /G/   &&   $7 ~ /%/) {
+        if(NF == 8 && $1 ~ /mysql/ && $3 ~ /dbs/ && ($3 ~ /sd/ || $3 ~ /xvd/) && $4 ~ /G/ && $5 ~ /G/ && $6 ~ /G/ && $7 ~ /%/) {
 
             printf "OK: %s \n",$0 > "/dev/stdout"
 
@@ -26,7 +27,7 @@ ValidateFile () {
             printf "BLANK LINE: %s \n",$0 " ----------- on line number " NR > "/dev/stderr" 
 
                 }
-        else if(!(NF == 8   &&   $1 ~ /mysql/   &&   $3 ~ /dbs/   &&   ($3 ~ /sd/ || $3 ~ /xvd/)   &&   $4 ~ /G/   &&   $5 ~ /G/   &&   $6 ~ /G/   &&   $7 ~ /%/)) {
+        else if(!(NF == 8 && $1 ~ /mysql/ && $3 ~ /dbs/ && ($3 ~ /sd/ || $3 ~ /xvd/) && $4 ~ /G/ && $5 ~ /G/ && $6 ~ /G/ && $7 ~ /%/)) {
 
             printf "INVALID: %s \n",$0 " ----------- on line number " NR > "/dev/stderr" 
 
@@ -41,7 +42,7 @@ ValidateInput () {
     read -r file
     echo "#################################################" 
     awk '{ 
-        if(NF == 8   &&   $1 ~ /mysql/   &&   $3 ~ /dbs/   &&   ($3 ~ /sd/ || $3 ~ /xvd/)   &&   $4 ~ /G/   &&   $5 ~ /G/   &&   $6 ~ /G/   &&   $7 ~ /%/) {
+        if(NF == 8 && $1 ~ /mysql/ && $3 ~ /dbs/ && ($3 ~ /sd/ || $3 ~ /xvd/) && $4 ~ /G/ && $5 ~ /G/ && $6 ~ /G/ && $7 ~ /%/) {
 
             printf "OK: %s \n",$0 > "/dev/stdout"
 
@@ -51,7 +52,7 @@ ValidateInput () {
             printf "BLANK LINE: %s \n",$0 " ----------- on line number " NR > "/dev/stderr" 
 
                 }
-        else if(!(NF == 8   &&   $1 ~ /mysql/   &&   $3 ~ /dbs/   &&   ($3 ~ /sd/ || $3 ~ /xvd/)   &&   $4 ~ /G/   &&   $5 ~ /G/   &&   $6 ~ /G/   &&   $7 ~ /%/)) {
+        else if(!(NF == 8 && $1 ~ /mysql/ && $3 ~ /dbs/ && ($3 ~ /sd/ || $3 ~ /xvd/) && $4 ~ /G/ && $5 ~ /G/ && $6 ~ /G/ && $7 ~ /%/)) {
 
             printf "INVALID: %s \n",$0 " ----------- on line number " NR > "/dev/stderr" 
 
@@ -75,18 +76,17 @@ CheckDiskUsageInput () {
 }
 
 CountFile () {
-    
-awk -v lc=$LINE_COUNT '{ 
-        if(NF == 8   &&   $1 ~ /mysql/   &&   $3 ~ /dbs/   &&   ($3 ~ /sd/ || $3 ~ /xvd/)   &&   $4 ~ /G/   &&   $5 ~ /G/   &&   $6 ~ /G/   &&   $7 ~ /%/) {
-            
-          printf "Valid lines: \n" lc > "/dev/stderr"
+#TOTAL
+awk -v lc=$LINE_COUNT '{if(NF != 0) {print "Total lines: " lc}}' $1 | sort | tail -1
 
-                } 
-        
-        
+#VALID
+awk -v va="$VAL_ALG" 'va { ++count } END { print "Valid lines: " count va}' $1
 
-        }' $1 | sort | tail -1
-}
+#INVALID and BLANK
+awk 'NF == 0 { ++countB } (!(NF == 8 && $1 ~ /mysql/ && $3 ~ /dbs/ && ($3 ~ /sd/ || $3 ~ /xvd/) && $4 ~ /G/ && $5 ~ /G/ && $6 ~ /G/ && $7 ~ /%/)) { ++count } END { print "Invalid lines: " count " (" countB " of them are BLANK)"}' $1
+
+
+} 
 
 CountInput () {
 
