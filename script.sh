@@ -122,17 +122,19 @@ ValidateOption () {
 
 Help () {
 
-    echo "////////////////////////////////////////////////////"
+    echo " "
     echo "Usage: $0 --full || --count || --validate <filename>"
+    echo " "
     echo "-------------------------------------------------"  
     echo "Format vstupu: <server>: (<pocet> dbs)<disk> <total>G <used>G <free>G <perc>% <mount>"
     echo "-------------------------------------------------"
     echo "Meno suboru sa moze zadat bud priamo za skript a option alebo zadat iba skript a option a skript vypyta nazov zo vstupu usera"  
-    echo "-------------------------------------------------"    
+    echo "-------------------------------------------------"
+    echo " "
     echo "[--full] <filename> - Zistuje ci je percentualne vyuzitie disku vacsie ako DISK_THRESHOLD premenna (default 75%)"
     echo "[--count] <filename> - Spocita a vypise pocet vsetkych, validnych, invalidnych a prazdnych riadkov"
     echo "[--validate] <filename> - Validuje riadky ci splnaju specifikovany format zapisu"
-    echo "////////////////////////////////////////////////////"  
+    echo " " 
     exit 2
 
 }
